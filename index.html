@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" />
+  
+  <style>
+    /* --- VARIABLES --- */
+    :root {
+      --primary: #004aad;
+      --primary-light: #e0eaff;
+      --primary-hover: #003d91;
+      --bg-app: #f6f9ff;
+      --bg-sidebar: #f8fafc;
+      --text: #1e293b;
+      --bubble-user: #e0eaff;
+      --bubble-ai: #ffffff;
+      --tag-oral: #10b981;
+      --tag-written: #004aad;
+    }
+
+    body.theme-oral {
+      --primary: #059669;
+      --primary-hover: #047857;
+      --primary-light: #d1fae5;
+      --bubble-user: #d1fae5;
+      --bg-app: #f0fdf4;
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body { margin: 0; font-family: 'Outfit', sans-serif; background: var(--bg-app); color: var(--text); height: 100vh; display: flex; overflow: hidden; transition: background 0.3s; }
+    .hidden { display: none !important; }
+    
+    .icon { font-family: 'Material Symbols Rounded'; font-size: 24px; user-select: none; transition: 0.2s; }
+    .btn-primary { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: 700; font-size: 16px; cursor: pointer; transition: 0.2s; }
+
+    /* LAYOUT Y CENTRADO DEL DASHBOARD */
+    #view-dashboard { display: flex; justify-content: center; align-items: center; width: 100%; height: 100%; }
+    .dashboard-content { display: flex; flex-direction: column; align-items: center; gap: 40px; width: 100%; text-align: center; }
+    .dashboard-grid { display: flex; gap: 20px; justify-content: center; align-items: center; flex-wrap: wrap; width: 100%; }
+
+    .mode-card { width: 160px; height: 180px; background: white; border: 2px solid #f1f5f9; border-radius: 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
+    .mode-card:hover { border-color: var(--primary); transform: translateY(-8px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
+
+    /* CHAT & BUBBLES */
+    #main-content { flex: 1; display: flex; flex-direction: column; height: 100%; width: 100%; position: relative; }
+    .navbar { height: 64px; padding: 0 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #f1f5f9; background: white; z-index: 50; }
+    .chat-scroll { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 20px; scroll-behavior: smooth; }
+    .chat-content-width { width: 100%; max-width: 700px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; position: relative; }
+    .bubble { padding: 14px 20px; border-radius: 20px; line-height: 1.6; max-width: 85%; font-size: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); animation: popIn 0.3s ease; }
+    .bubble.user { background: var(--bubble-user); align-self: flex-end; border-bottom-right-radius: 4px; }
+    .bubble.ai { background: var(--bubble-ai); align-self: flex-start; border: 1px solid #f1f5f9; border-top-left-radius: 4px; }
+    @keyframes popIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* CHIPS NORMALES */
+    .action-chip { padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; cursor: pointer; background: white; border: 1px solid var(--primary); color: var(--primary); white-space: nowrap; transition: 0.2s; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+    .action-chip:hover { background: var(--primary); color: white; transform: translateY(-3px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+
+    /* =====================================================================
+       DISEÑO DE LA CÁPSULA MAESTRA UNIFICADA (VOZ)
+       ===================================================================== */
+    .input-wrapper { padding: 15px 15px 60px 15px; background: white; border-top: 1px solid #f1f5f9; display: flex; flex-direction: column; align-items: center; gap: 12px; z-index: 60; }
+    .suggestion-chips { display: flex; gap: 10px; width: 100%; max-width: 700px; padding: 10px 0; overflow-x: visible; justify-content: space-between; align-items: center; }
+    .chips-group { display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; overflow: visible; padding-bottom: 5px; }
+    
+    /* El contenedor exterior con el marco */
+    .capsule-wrapper { 
+        display: flex; 
+        align-items: stretch; /* Estira los botones internos a la altura de la caja */
+        border: 2px solid var(--primary); 
+        border-radius: 30px; 
+        overflow: hidden; /* Esto mantiene la forma perfecta de píldora cuando los botones crecen */
+        height: 42px; 
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        background: white;
+    }
+    
+    /* Los botones laterales */
+    .capsule-btn { 
+        background: var(--primary); 
+        color: white; 
+        font-weight: 800; 
+        font-size: 12px; 
+        padding: 0 16px; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        cursor: pointer; 
+        transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+        text-transform: uppercase;
+    }
+    .capsule-btn:hover { 
+        padding: 0 22px; /* Aquí se infla el botón internamente ocupando más espacio */
+        background: var(--primary-hover);
+    }
+    
+    /* La zona central con el nombre de la voz */
+    .capsule-center { 
+        background: white; 
+        color: var(--primary); 
+        font-weight: 700; 
+        font-size: 13px; 
+        padding: 0 15px; 
+        display: flex; 
+        align-items: center; 
+        gap: 6px; 
+        white-space: nowrap;
+    }
+
+    /* MENÚ DESPLEGABLE */
+    .popup-menu { position: absolute; bottom: 55px; left: 0; background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); border: 1px solid #e2e8f0; min-width: 160px; z-index: 200; display: flex; flex-direction: column; overflow: hidden; transform-origin: bottom left; transition: all 0.2s; }
+    .popup-menu.hidden { transform: scale(0.9); opacity: 0; pointer-events: none; }
+    .popup-item { padding: 12px 16px; font-size: 13px; font-weight: 700; color: #1e293b; display: flex; align-items: center; gap: 10px; cursor: pointer; transition: 0.2s; }
+    .popup-item:hover { background: #f1f5f9; color: var(--primary); }
+
+    /* INPUT BAR */
+    .input-bar { width: 100%; max-width: 700px; background: #f1f5f9; border-radius: 30px; padding: 6px 8px; display: flex; align-items: center; gap: 6px; }
+    .msg-input { flex: 1; background: transparent; border: none; outline: none; padding: 8px 12px; font-size: 16px; font-family: 'Outfit'; }
+    .btn-send-filled { width: 44px; height: 44px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; }
+    .action-icon-btn { width: 44px; height: 44px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #64748b; flex-shrink: 0; transition: 0.2s; }
+    
+    .mic-recording { color: var(--primary) !important; background: var(--primary-light) !important; animation: pulseTheme 1.5s infinite; }
+    @keyframes pulseTheme { 0% { transform: scale(1); box-shadow: 0 0 0 0 var(--primary-light); } 70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(0,0,0, 0); } 100% { transform: scale(1); box-shadow: 0 0 0 0 var(--primary-light); } }
+
+    .live-recording { color: var(--primary) !important; background: var(--primary-light) !important; animation: pulseLive 1.5s infinite; }
+    @keyframes pulseLive { 0% { transform: scale(1); box-shadow: 0 0 0 0 var(--primary-light); } 70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(0,0,0, 0); } 100% { transform: scale(1); box-shadow: 0 0 0 0 var(--primary-light); } }
+  </style>
+</head><body>
+
+  <div id="overlay" onclick="toggleSidebar()"></div>
+  <div id="sidebar">
+    <div class="sidebar-header">
+      <span style="font-weight:800; color:#334155; font-size: 20px">Historial</span>
+      <span class="icon" onclick="toggleSidebar()" style="cursor:pointer; width:44px; height:44px; display:flex; align-items:center; justify-content:center;">close</span>
+    </div>
+    <div class="new-chat-btn" onclick="goHome(); toggleSidebar()" style="padding:15px; display:flex; align-items:center; gap:10px; cursor:pointer; color:var(--primary); font-weight:bold;">
+      <span class="icon" style="font-size:20px">add</span> Nuevo Chat
+    </div>
+    <div class="search-box">
+      <span class="icon" style="font-size:18px; color:#94a3b8">search</span>
+      <input type="text" class="search-input" placeholder="Buscar..." onkeyup="filterHistory(this.value)">
+    </div>
+    <div class="filters">
+      <div class="chip active" onclick="setFilter('all', this)">Todo</div>
+      <div class="chip" onclick="setFilter('files', this)">Archivos</div>
+      <div class="chip" onclick="setFilter('chats', this)">Chats</div>
+    </div>
+    <div class="history-list" id="history-container"></div>
+  </div>
+
+  <div id="main-content">
+    <div class="navbar hidden" id="navbar">
+      <div class="nav-left">
+        <span class="icon" onclick="toggleSidebar()" style="cursor:pointer; width:44px; height:44px; display:flex; align-items:center; justify-content:center;">menu</span>
+        <span style="font-weight:800; font-size:18px; color:var(--primary)" id="app-title">ALIADO</span>
+      </div>
+      <div onclick="goHome()" style="cursor:pointer; display:flex; flex-direction:column; align-items:center; gap:2px;">
+        <span class="icon" style="font-size:22px; color:#64748b;">home</span>
+        <span style="font-size:10px; font-weight:700; color:#64748b;">Inicio</span>
+      </div>
+    </div>
+
+    <!-- VISTA LOGIN -->
+    <div id="view-login" class="view-container">
+      <div class="login-box">
+        <img id="login-logo-img" class="login-logo" alt="Logo La Amistad">
+        <div id="logo-loader">Cargando logo...</div>
+        <h2 style="color:var(--primary); margin:5px 0;">La Amistad</h2>
+        <h3 style="color:#64748b; font-size:14px; margin:0; text-transform:uppercase; letter-spacing: 1px;">TÉCNICAS DE ESTUDIO</h3>
+        <input type="text" inputmode="numeric" pattern="[0-9]*" id="cedula" class="input-login" placeholder="Ingresa tu Cédula">
+        <button class="btn-primary" onclick="login()">COMENZAR</button>
+      </div>
+    </div>
+
+    <!-- VISTA DASHBOARD -->
+    <div id="view-dashboard" class="view-container hidden">
+      <div class="dashboard-content">
+        <div style="text-align:center;">
+          <div style="font-size:12px; font-weight:800; color:#94a3b8; text-transform:uppercase; letter-spacing:1px; margin-bottom:5px;">Técnicas de Estudio</div>
+          <h1 style="color:#1e293b; margin-bottom: 10px; margin-top:0;">Hola, <span id="user-name" style="color:var(--primary)">Estudiante</span></h1>
+          <p style="color:#64748b">¿Qué desafío enfrentaremos hoy?</p>
+        </div>
+        <div class="dashboard-grid">
+          <div class="mode-card" onclick="startChat('quiz')">
+            <span class="icon" style="font-size:48px; color:#004aad; margin-bottom:15px">edit_note</span>
+            <b style="color:#004aad; font-size:16px">Modo Escrito</b>
+            <span style="font-size:12px; color:#64748b; margin-top:5px">Datos y Precisión</span>
+          </div>
+          <div class="mode-card oral-card" onclick="startChat('oral')">
+            <span class="icon" style="font-size:48px; color:#10b981; margin-bottom:15px">mic</span>
+            <b style="color:#10b981; font-size:16px">Modo Oral</b>
+            <span style="font-size:12px; color:#64748b; margin-top:5px">Defensa y Oratoria</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- VISTA CHAT -->
+    <div id="view-chat" class="view-container hidden">
+      <div class="chat-scroll" id="chat-scroll">        
+        <div class="chat-content-width" id="chat-box"></div>
+      </div>
+      
+      <div id="img-preview" class="chat-content-width hidden" style="padding:0 15px; margin-bottom:10px">
+        <div style="background:var(--primary-light); padding:8px 15px; border-radius:12px; display:inline-flex; align-items:center; gap:8px; font-size:12px; color:var(--primary); font-weight:600">
+          <span class="icon" style="font-size:16px">image</span> Imagen adjunta
+          <span class="icon" style="font-size:16px; cursor:pointer" onclick="clearImage()">close</span>
+        </div>
+      </div>
+      
+      <div class="input-wrapper">
+        <div class="suggestion-chips">
+          <div class="chips-group">
+            <div class="action-chip" onclick="sendChip('💡 Dame una pista')">💡 Pista</div>
+            <div class="action-chip" onclick="sendChip('🔥 Hazlo más difícil')">🔥 Más difícil</div>
+            <div class="action-chip" onclick="sendChip('🎯 Resumen')">🎯 Resumen</div>
+          </div>
+          
+          <!-- ESTRUCTURA DE LA NUEVA CÁPSULA MAESTRA DE VOZ -->
+          <div class="attach-container hidden" id="voice-config" style="position: relative;">
+            <div class="capsule-wrapper">
+                <!-- Extremo Izquierdo: Elegir -->
+                <div class="capsule-btn" onclick="toggleVoiceMenu()">Elegir</div>
+                
+                <!-- Centro Intocable -->
+                <div class="capsule-center">
+                   <span class="icon" style="font-size: 18px;">record_voice_over</span>
+                   <span id="current-voice-label">Voz Femenina 1</span>
+                </div>
+                
+                <!-- Extremo Derecho: Probar -->
+                <div class="capsule-btn" onclick="previewVoiceBtn(event)">Probar</div>
+            </div>
+            
+            <!-- Menú Desplegable -->
+            <div id="voice-menu" class="popup-menu hidden" style="right: 0; left: auto; top: -180px; bottom: auto;">
+               <div class="popup-item" onclick="selectVoice('Aoede', 'Voz Femenina 1')">👩 Voz Femenina 1</div>
+               <div class="popup-item" onclick="selectVoice('Kore', 'Voz Femenina 2')">👩 Voz Femenina 2</div>
+               <div style="height:1px; background:#e2e8f0; margin: 4px 0;"></div>
+               <div class="popup-item" onclick="selectVoice('Puck', 'Voz Masculina 1')">👨 Voz Masculina 1</div>
+               <div class="popup-item" onclick="selectVoice('Charon', 'Voz Masculina 2')">👨 Voz Masculina 2</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="input-bar">
+          <div class="attach-container">
+            <div class="attach-btn" onclick="toggleAttachMenu()">
+               <span class="icon">add</span>
+            </div>
+            <div id="attach-menu" class="popup-menu hidden">
+               <div class="popup-item" onclick="openCam()"><span class="icon">photo_camera</span> Cámara</div>
+               <div class="popup-item" onclick="openGal()"><span class="icon">collections</span> Galería</div>
+               <div class="popup-item" onclick="openDoc()"><span class="icon">description</span> Archivos</div>
+            </div>
+            <input type="file" id="file-cam" accept="image/*" capture="environment" hidden onchange="handleImage(this)">
+            <input type="file" id="file-gal" accept="image/*" hidden onchange="handleImage(this)">
+            <input type="file" id="file-doc" accept=".pdf,.doc,.docx,.txt" hidden onchange="handleDoc(this)">
+          </div>
+          
+          <input type="text" id="msg-input" class="msg-input" placeholder="Escribe tu duda...">
+          
+          <div class="action-icon-btn" id="btn-dictate" onclick="toggleDictation()" title="Dictar Texto">
+             <span class="icon">mic</span>
+          </div>
+          
+          <div class="action-icon-btn hidden" id="btn-live" onclick="toggleLiveMode()" title="Modo Live">
+             <span class="icon">graphic_eq</span>
+          </div>
+          
+          <div class="btn-send-filled" onclick="send()">
+            <span class="icon" style="font-size:20px">send</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div><script>
+    // ==========================================
+    // VARIABLES GLOBALES Y CONEXIÓN
+    // ==========================================
+    var uid = null;
+    var mode = null;
+    var chatId = null;
+    var currentImg = null;
+    var currentMime = null;
+    
+    // Aquí pondremos tu link de Google Apps Script más adelante
+    var APPS_SCRIPT_URL = ""; 
+
+    window.onload = function() {
+      // Intenta cargar el logo si está en Google, si no, usa texto
+      if (typeof google !== 'undefined' && google.script) {
+        google.script.run.withSuccessHandler(function(base64) {
+          if(base64) {
+            document.getElementById('login-logo-img').src = base64;
+            document.getElementById('login-logo-img').style.display = 'block';
+            document.getElementById('logo-loader').style.display = 'none';
+          }
+        }).getLogoFromDrive();
+      } else {
+        document.getElementById('logo-loader').innerText = 'ALIADO (Modo GitHub)';
+      }
+
+      var savedVoiceName = localStorage.getItem('aliado_voice_name');
+      var savedVoiceId = localStorage.getItem('aliado_voice');
+      if(savedVoiceName && savedVoiceId) {
+        document.getElementById('current-voice-label').innerText = savedVoiceName;
+        currentVoiceId = savedVoiceId;
+      }
+      
+      // Cierra los menús si haces clic afuera
+      document.addEventListener('click', function(e) {
+        var attachContainer = document.getElementById('attach-menu').parentElement;
+        if (attachContainer && !attachContainer.contains(e.target)) {
+            document.getElementById('attach-menu').classList.add('hidden');
+        }
+        var voiceContainer = document.getElementById('voice-config');
+        if (voiceContainer && !voiceContainer.contains(e.target)) {
+            document.getElementById('voice-menu').classList.add('hidden');
+        }
+      });
+    };
+
+    // ==========================================
+    // LÓGICA DE LA CÁPSULA UNIFICADA (VOZ)
+    // ==========================================
+    var currentVoiceId = "Aoede";
+    
+    function toggleVoiceMenu() {
+      document.getElementById('voice-menu').classList.toggle('hidden');
+    }
+
+    function selectVoice(id, name) {
+      currentVoiceId = id;
+      document.getElementById('current-voice-label').innerText = name;
+      localStorage.setItem('aliado_voice', id);
+      localStorage.setItem('aliado_voice_name', name);
+      toggleVoiceMenu(); // Se cierra en silencio, sin reproducir audio
+    }
+
+    function previewVoiceBtn(event) {
+      event.stopPropagation(); // Evita que se abra el menú sin querer
+      var voiceName = document.getElementById('current-voice-label').innerText;
+      
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel(); 
+        var msg = new SpeechSynthesisUtterance("Hola, esta es mi voz. Pruébame si quieres.");
+        msg.lang = 'es-ES'; 
+        msg.pitch = voiceName.includes('Masculina') ? 0.5 : 1.2;
+        msg.rate = 1.0;
+        window.speechSynthesis.speak(msg);
+      }
+    }
+
+    // ==========================================
+    // ADJUNTOS
+    // ==========================================
+    function toggleAttachMenu() { document.getElementById('attach-menu').classList.toggle('hidden'); }
+    function openCam() { document.getElementById('file-cam').click(); toggleAttachMenu(); }
+    function openGal() { document.getElementById('file-gal').click(); toggleAttachMenu(); }
+    function openDoc() { document.getElementById('file-doc').click(); toggleAttachMenu(); }
+
+    function handleImage(inputElement) {
+      var f = inputElement.files[0];
+      if(!f) return;
+      var r = new FileReader();
+      r.onload = function(e) { 
+        currentImg = e.target.result.split(',')[1]; 
+        currentMime = f.type; 
+        document.getElementById('img-preview').classList.remove('hidden'); 
+      };
+      r.readAsDataURL(f);
+      inputElement.value = ''; 
+    }
+    function clearImage() { 
+      currentImg = null; currentMime = null;
+      document.getElementById('img-preview').classList.add('hidden'); 
+    }
+
+    // ==========================================
+    // MICRÓFONO INFINITO (TRANSCRIPCIÓN REAL-TIME)
+    // ==========================================
+    var sttRecognition = null;
+    var isDictating = false;
+    var manualStop = false;
+    var finalTranscriptMemory = "";
+
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      var SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+      sttRecognition = new SpeechRec();
+      sttRecognition.continuous = true; 
+      sttRecognition.interimResults = true; // Permite escribir mientras hablas
+      sttRecognition.lang = 'es-UY';
+
+      sttRecognition.onresult = function(e) {
+        var interimTranscript = '';
+        var currentFinal = '';
+        
+        for (var i = e.resultIndex; i < e.results.length; ++i) {
+          if (e.results[i].isFinal) currentFinal += e.results[i][0].transcript;
+          else interimTranscript += e.results[i][0].transcript;
+        }
+        
+        finalTranscriptMemory += currentFinal;
+        document.getElementById('msg-input').value = finalTranscriptMemory + interimTranscript;
+      };
+
+      sttRecognition.onend = function() {
+        if (!manualStop && isDictating) sttRecognition.start(); 
+      };
+
+      sttRecognition.onerror = function(event) {
+        isDictating = false;
+        manualStop = true;
+        document.getElementById('btn-dictate').classList.remove('mic-recording');
+        document.getElementById('msg-input').placeholder = "Escribe tu duda...";
+        console.error("Error de micrófono: ", event.error);
+      };
+    }
+
+    function toggleDictation() {
+      if(!sttRecognition) return alert("Tu navegador actual no soporta esta función.");
+      var btn = document.getElementById('btn-dictate');
+      var input = document.getElementById('msg-input');
+
+      if(!isDictating) {
+        isDictating = true;
+        manualStop = false;
+        finalTranscriptMemory = ""; 
+        btn.classList.add('mic-recording');
+        input.placeholder = "Hablando... (Toca para enviar)";
+        input.value = ""; 
+        sttRecognition.start();
+      } else {
+        isDictating = false;
+        manualStop = true; 
+        btn.classList.remove('mic-recording');
+        input.placeholder = "Escribe tu duda...";
+        sttRecognition.stop();
+        
+        setTimeout(function() {
+           if (input.value.trim() !== "") send();
+        }, 500);
+      }
+    }
+
+    // ==========================================
+    // MODO LIVE (CONEXIÓN API + TRANSCRIPCIÓN)
+    // ==========================================
+    var LIVE_API_KEY = "AIzaSyB5aayRLLxCkuppJS95geSNeO5iVCa82Zk"; 
+    var liveWs = null;
+    var audioCtx = null;
+    var micStream = null;
+    var scriptNode = null;
+    var isLiveActive = false;
+
+    async function initLiveAPI() {
+      return new Promise(function(resolve, reject) {
+        var url = "wss://generativelanguage.googleapis.com/ws/google.ai.generativelanguage.v1alpha.GenerativeService.BidiGenerateContent?key=" + LIVE_API_KEY;
+        liveWs = new WebSocket(url);
+        liveWs.onopen = function() {
+          liveWs.send(JSON.stringify({
+            setup: {
+              model: "models/gemini-2.0-flash-exp",
+              generationConfig: {
+                responseModalities: ["AUDIO"],
+                speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: currentVoiceId } } },
+                systemInstruction: { parts: [{ text: "Eres ALIADO. Responde como tutor en Uruguay." }] }
+              }
+            }
+          }));
+          resolve();
+        };
+        liveWs.onmessage = async function(event) {
+          if (event.data instanceof Blob) return; 
+          var data = JSON.parse(event.data);
+          if (data.serverContent && data.serverContent.modelTurn) {
+            for (var p of data.serverContent.modelTurn.parts) {
+              if (p.inlineData && p.inlineData.data) playIAAudio(p.inlineData.data);
+            }
+          }
+        };
+        liveWs.onerror = function(e) { reject(e); };
+      });
+    }
+
+    async function toggleLiveMode() {
+      var btn = document.getElementById('btn-live');
+      var input = document.getElementById('msg-input');
+      
+      if(!isLiveActive) {
+        isLiveActive = true;
+        manualStop = false;
+        finalTranscriptMemory = "";
+        btn.classList.add('live-recording');
+        input.value = "";
+        input.placeholder = "Modo Live. Habla ahora...";
+        
+        if (sttRecognition) sttRecognition.start(); // Inicia transcripción en la caja
+        if(!liveWs || liveWs.readyState !== WebSocket.OPEN) await initLiveAPI();
+
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
+        micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        var source = audioCtx.createMediaStreamSource(micStream);
+        scriptNode = audioCtx.createScriptProcessor(4096, 1, 1);
+        
+        scriptNode.onaudioprocess = function(e) {
+          var inputData = e.inputBuffer.getChannelData(0);
+          var pcm16 = new Int16Array(inputData.length);
+          for (var i = 0; i < inputData.length; i++) pcm16[i] = Math.max(-1, Math.min(1, inputData[i])) * 32767;
+          var bytes = new Uint8Array(pcm16.buffer);
+          var binary = '';
+          for (var j = 0; j < bytes.byteLength; j++) binary += String.fromCharCode(bytes[j]);
+          
+          if (liveWs.readyState === WebSocket.OPEN) {
+            liveWs.send(JSON.stringify({ realtimeInput: { mediaChunks: [{ mimeType: "audio/pcm;rate=16000", data: btoa(binary) }] } }));
+          }
+        };
+        source.connect(scriptNode);
+        scriptNode.connect(audioCtx.destination);
+      } else {
+        isLiveActive = false;
+        manualStop = true;
+        btn.classList.remove('live-recording');
+        input.placeholder = "Escribe tu duda...";
+        
+        if (sttRecognition) sttRecognition.stop();
+        if (micStream) micStream.getTracks().forEach(function(t) { t.stop(); });
+        if (scriptNode) scriptNode.disconnect();
+        
+        setTimeout(function() {
+            var userText = input.value.trim() !== "" ? input.value.trim() : "Audio enviado...";
+            addMsg("🎙️ " + userText, 'user', false, true);
+            input.value = "";
+            if (liveWs && liveWs.readyState === WebSocket.OPEN) {
+              liveWs.send(JSON.stringify({ clientContent: { turnComplete: true } }));
+            }
+        }, 500);
+      }
+    }
+
+    async function playIAAudio(base64Data) {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 24000 });
+      var binaryStr = atob(base64Data);
+      var bytes = new Uint8Array(binaryStr.length);
+      for (var i = 0; i < binaryStr.length; i++) bytes[i] = binaryStr.charCodeAt(i);
+      
+      var audioBuffer = audioCtx.createBuffer(1, bytes.length / 2, 24000);
+      var channelData = audioBuffer.getChannelData(0);
+      var dataView = new DataView(bytes.buffer);
+      for (var j = 0; j < channelData.length; j++) channelData[j] = dataView.getInt16(j * 2, true) / 32768.0;
+
+      var source = audioCtx.createBufferSource();
+      source.buffer = audioBuffer;
+      source.connect(audioCtx.destination);
+      source.start();
+    }
+
+    // ==========================================
+    // RUTINAS DE UI (MENÚS Y LOGIN)
+    // ==========================================
+    function show(id) {
+      var views = document.querySelectorAll('.view-container');
+      for (var i = 0; i < views.length; i++) views[i].classList.add('hidden');
+      document.getElementById(id).classList.remove('hidden');
+      if(id !== 'view-login') document.getElementById('navbar').classList.remove('hidden');
+    }
+
+    function login() {
+      var inputElement = document.getElementById('cedula');
+      if (!inputElement || inputElement.value.trim() === "") return alert("Ingresa tu cédula.");
+      
+      var btn = document.querySelector('.login-box .btn-primary');
+      if (btn) btn.innerText = "VERIFICANDO...";
+      
+      // MODO PRUEBA GITHUB
+      if (typeof google === 'undefined' || !google.script) {
+        setTimeout(function() {
+           uid = "github-test";
+           document.getElementById('user-name').innerText = "Máximo";
+           show('view-dashboard');
+           if (btn) btn.innerText = "COMENZAR";
+        }, 800);
+        return;
+      }
+
+      // MODO APPS SCRIPT (Opcional si lo usas ahí)
+      google.script.run.withSuccessHandler(function(res) {
+          if (btn) btn.innerText = "COMENZAR";
+          if (res.success === true) {
+            uid = res.id;
+            document.getElementById('user-name').innerText = res.nombre.split(' ')[0];
+            show('view-dashboard');
+          } else alert(res.error);
+      }).validarIngreso(inputElement.value.trim());
+    }
+
+    function goHome() {
+      show('view-dashboard');
+      document.body.className = ''; 
+      document.getElementById('app-title').innerText = "ALIADO";
+      document.getElementById('chat-box').innerHTML = '';
+      document.getElementById('voice-config').classList.add('hidden');
+      document.getElementById('btn-live').classList.add('hidden');
+      chatId = null;
+    }
+    
+    function startChat(m) {
+      mode = m;
+      chatId = Date.now().toString(); 
+      show('view-chat');
+      
+      var liveBtn = document.getElementById('btn-live');
+      var voiceSelector = document.getElementById('voice-config');
+      
+      if (mode === 'oral') {
+        document.body.className = 'theme-oral';
+        document.getElementById('app-title').innerText = "MODO ORAL";
+        voiceSelector.classList.remove('hidden');
+        liveBtn.classList.remove('hidden');
+        addMsg("<b>Modo Oral.</b><br>Habla para transcribir o usa las ondas para Modo Live.", 'ai');
+      } else {
+        document.body.className = '';
+        document.getElementById('app-title').innerText = "MODO ESCRITO";
+        voiceSelector.classList.add('hidden');
+        liveBtn.classList.add('hidden');
+        addMsg("<b>Modo Escrito.</b><br>¿Qué estudiaremos hoy?", 'ai');
+      }
+    }
+
+    function sendChip(txt) { document.getElementById('msg-input').value = txt; send(); }
+    
+    function send() {
+      var txt = document.getElementById('msg-input').value.trim();
+      if(!txt && !currentImg) return;
+
+      addMsg(txt + (currentImg ? " <br><small><i>[Imagen adjunta]</i></small>" : ""), 'user');
+      document.getElementById('msg-input').value = '';
+      var loadId = addMsg("Analizando...", 'ai', true);
+
+      // MODO PRUEBA GITHUB
+      if (typeof google === 'undefined' || !google.script) {
+         setTimeout(function() {
+            var loaderEl = document.getElementById(loadId);
+            if (loaderEl) loaderEl.remove();
+            addMsg("¡Mensaje recibido! (Esta es una prueba de UI en GitHub. Para respuestas reales de Gemini, debemos conectar tu Apps Script).", 'ai');
+         }, 1500);
+         clearImage();
+         return;
+      }
+
+      // MODO APPS SCRIPT
+      google.script.run.withSuccessHandler(function(res) {
+        var loaderEl = document.getElementById(loadId);
+        if (loaderEl) loaderEl.remove();
+        addMsg(res.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>'), 'ai');
+      }).talkToGemini(txt, mode, currentImg, currentMime, uid, chatId, "[]");
+      clearImage();
+    }
+    
+    function addMsg(html, role, isLoader, isLive) {
+      var d = document.createElement('div');
+      d.className = "bubble " + role; 
+      var badge = isLive ? '<span class="badge-live">🟢 Live</span>' : '';
+      d.innerHTML = html + badge;
+      if(isLoader) d.id = 'loader-' + Date.now();
+      document.getElementById('chat-box').appendChild(d);
+      document.getElementById('chat-scroll').scrollTop = 99999;
+      return d.id;
+    }
+
+    // ==========================================
+    // SIDEBAR / HISTORIAL BÁSICO
+    // ==========================================
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('open');
+      document.getElementById('overlay').classList.toggle('show');
+    }
+    
+    document.getElementById('msg-input').addEventListener('keypress', function(e) { if(e.key==='Enter') send(); });
+    document.getElementById('cedula').addEventListener('keypress', function(e) { if(e.key==='Enter') login(); });
+  </script>
+</body>
+</html>
