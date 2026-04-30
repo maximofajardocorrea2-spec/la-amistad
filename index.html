@@ -1,13 +1,16 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
+  <base target="_top">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,400,1,0" />
   
   <style>
-    /* --- VARIABLES --- */
+    /* ==========================================
+       1. VARIABLES Y TEMAS GENERALES
+       ========================================== */
     :root {
       --primary: #004aad;
       --primary-light: #e0eaff;
@@ -29,128 +32,635 @@
       --bg-app: #f0fdf4;
     }
 
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    body { margin: 0; font-family: 'Outfit', sans-serif; background: var(--bg-app); color: var(--text); height: 100vh; display: flex; overflow: hidden; transition: background 0.3s; }
+    * { 
+      box-sizing: border-box; 
+      -webkit-tap-highlight-color: transparent; 
+      margin: 0; 
+      padding: 0;
+    }
+
+    body { 
+      font-family: 'Outfit', sans-serif; 
+      background: var(--bg-app); 
+      color: var(--text); 
+      height: 100vh; 
+      display: flex; 
+      overflow: hidden; 
+      transition: background 0.3s; 
+    }
+
     .hidden { display: none !important; }
-    
-    .icon { font-family: 'Material Symbols Rounded'; font-size: 24px; user-select: none; transition: 0.2s; }
-    .btn-primary { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: 700; font-size: 16px; cursor: pointer; transition: 0.2s; }
 
-    /* LAYOUT Y CENTRADO DEL DASHBOARD */
-    #view-dashboard { display: flex; justify-content: center; align-items: center; width: 100%; height: 100%; }
-    .dashboard-content { display: flex; flex-direction: column; align-items: center; gap: 40px; width: 100%; text-align: center; }
-    .dashboard-grid { display: flex; gap: 20px; justify-content: center; align-items: center; flex-wrap: wrap; width: 100%; }
-
-    .mode-card { width: 160px; height: 180px; background: white; border: 2px solid #f1f5f9; border-radius: 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
-    .mode-card:hover { border-color: var(--primary); transform: translateY(-8px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
-
-    /* CHAT & BUBBLES */
-    #main-content { flex: 1; display: flex; flex-direction: column; height: 100%; width: 100%; position: relative; }
-    .navbar { height: 64px; padding: 0 20px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #f1f5f9; background: white; z-index: 50; }
-    .chat-scroll { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 20px; scroll-behavior: smooth; }
-    .chat-content-width { width: 100%; max-width: 700px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; position: relative; }
-    .bubble { padding: 14px 20px; border-radius: 20px; line-height: 1.6; max-width: 85%; font-size: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); animation: popIn 0.3s ease; }
-    .bubble.user { background: var(--bubble-user); align-self: flex-end; border-bottom-right-radius: 4px; }
-    .bubble.ai { background: var(--bubble-ai); align-self: flex-start; border: 1px solid #f1f5f9; border-top-left-radius: 4px; }
-    @keyframes popIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-    /* CHIPS NORMALES */
-    .action-chip { padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 700; cursor: pointer; background: white; border: 1px solid var(--primary); color: var(--primary); white-space: nowrap; transition: 0.2s; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
-    .action-chip:hover { background: var(--primary); color: white; transform: translateY(-3px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-
-    /* =====================================================================
-       DISEÑO DE LA CÁPSULA MAESTRA UNIFICADA (VOZ)
-       ===================================================================== */
-    .input-wrapper { padding: 15px 15px 60px 15px; background: white; border-top: 1px solid #f1f5f9; display: flex; flex-direction: column; align-items: center; gap: 12px; z-index: 60; }
-    .suggestion-chips { display: flex; gap: 10px; width: 100%; max-width: 700px; padding: 10px 0; overflow-x: visible; justify-content: space-between; align-items: center; }
-    .chips-group { display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none; overflow: visible; padding-bottom: 5px; }
-    
-    /* El contenedor exterior con el marco */
-    .capsule-wrapper { 
-        display: flex; 
-        align-items: stretch; /* Estira los botones internos a la altura de la caja */
-        border: 2px solid var(--primary); 
-        border-radius: 30px; 
-        overflow: hidden; /* Esto mantiene la forma perfecta de píldora cuando los botones crecen */
-        height: 42px; 
-        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        background: white;
+    /* ==========================================
+       2. INTERACCIONES BÁSICAS Y BOTONES
+       ========================================== */
+    .icon { 
+      font-family: 'Material Symbols Rounded'; 
+      font-size: 24px; 
+      user-select: none; 
+      transition: 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
     }
     
-    /* Los botones laterales */
-    .capsule-btn { 
-        background: var(--primary); 
-        color: white; 
-        font-weight: 800; 
-        font-size: 12px; 
-        padding: 0 16px; 
-        display: flex; 
-        align-items: center; 
-        justify-content: center; 
-        cursor: pointer; 
-        transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-        text-transform: uppercase;
-    }
-    .capsule-btn:hover { 
-        padding: 0 22px; /* Aquí se infla el botón internamente ocupando más espacio */
-        background: var(--primary-hover);
+    .icon[onclick]:hover { 
+      color: var(--primary); 
+      transform: scale(1.1); 
+      background-color: rgba(0,0,0,0.05); 
+      border-radius: 50%; 
     }
     
-    /* La zona central con el nombre de la voz */
-    .capsule-center { 
-        background: white; 
-        color: var(--primary); 
-        font-weight: 700; 
-        font-size: 13px; 
-        padding: 0 15px; 
-        display: flex; 
-        align-items: center; 
-        gap: 6px; 
-        white-space: nowrap;
+    .icon[onclick]:active { 
+      transform: scale(0.9); 
     }
 
-    /* MENÚ DESPLEGABLE */
-    .popup-menu { position: absolute; bottom: 55px; left: 0; background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); border: 1px solid #e2e8f0; min-width: 160px; z-index: 200; display: flex; flex-direction: column; overflow: hidden; transform-origin: bottom left; transition: all 0.2s; }
+    .btn-primary { 
+      width: 100%; 
+      padding: 16px; 
+      background: var(--primary); 
+      color: white; 
+      border: none; 
+      border-radius: 12px; 
+      font-weight: 700; 
+      font-size: 16px; 
+      cursor: pointer; 
+      transition: all 0.2s ease; 
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+    }
+    
+    .btn-primary:hover { 
+      background: var(--primary-hover); 
+      transform: translateY(-2px); 
+      box-shadow: 0 8px 15px rgba(0, 74, 173, 0.2); 
+    }
+
+    .mode-card { 
+      width: 150px; 
+      height: 180px; 
+      background: white; 
+      border: 2px solid #f1f5f9; 
+      border-radius: 20px; 
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+      justify-content: center; 
+      cursor: pointer; 
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); 
+      box-shadow: 0 4px 10px rgba(0,0,0,0.03); 
+    }
+    
+    .mode-card:hover { 
+      border-color: var(--primary); 
+      transform: translateY(-8px); 
+      box-shadow: 0 15px 30px rgba(0,0,0,0.1); 
+    }
+    
+    .mode-card.oral-card:hover { 
+      border-color: #10b981; 
+    }
+
+    .action-chip { 
+      padding: 8px 16px; 
+      border-radius: 20px; 
+      font-size: 13px; 
+      font-weight: 700; 
+      cursor: pointer; 
+      background: white; 
+      border: 1px solid var(--primary); 
+      color: var(--primary); 
+      white-space: nowrap; 
+      transition: all 0.2s; 
+      display: flex; 
+      align-items: center; 
+      gap: 6px; 
+      box-shadow: 0 2px 5px rgba(0,0,0,0.02); 
+    }
+    
+    .action-chip:hover { 
+      background: var(--primary); 
+      color: white; 
+      transform: translateY(-3px); 
+      box-shadow: 0 4px 8px rgba(0, 74, 173, 0.2); 
+    }
+
+    /* ==========================================
+       3. SIDEBAR (HISTORIAL COMPLETAMENTE ESTRUCTURADO)
+       ========================================== */
+    #sidebar { 
+      width: 280px; 
+      background: var(--bg-sidebar); 
+      height: 100%; 
+      position: absolute; 
+      top: 0;
+      left: -280px; 
+      z-index: 1000; 
+      transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+      display: flex; 
+      flex-direction: column; 
+      box-shadow: 2px 0 15px rgba(0,0,0,0.1); 
+      border-right: 1px solid #e2e8f0; 
+    }
+    
+    #sidebar.open { left: 0; }
+    
+    #overlay { 
+      position: fixed; 
+      inset: 0; 
+      background: rgba(0,0,0,0.4); 
+      z-index: 900; 
+      display: none; 
+      backdrop-filter: blur(2px); 
+    }
+    
+    #overlay.show { display: block; }
+
+    .sidebar-header { padding: 20px; display: flex; align-items: center; justify-content: space-between; }
+    
+    .search-box { 
+      margin: 0 15px 10px; 
+      background: white; 
+      border: 1px solid #cbd5e1; 
+      border-radius: 12px; 
+      padding: 8px; 
+      display: flex; 
+      align-items: center; 
+      transition: 0.2s; 
+    }
+    
+    .search-box:focus-within { 
+      border-color: var(--primary); 
+      box-shadow: 0 0 0 3px var(--primary-light); 
+    }
+    
+    .search-input { 
+      border: none; 
+      background: transparent; 
+      outline: none; 
+      width: 100%; 
+      margin-left: 5px; 
+      font-family: 'Outfit'; 
+    }
+    
+    .filters { 
+      display: flex; 
+      gap: 8px; 
+      padding: 0 15px 15px; 
+      overflow-x: auto; 
+      scrollbar-width: none; 
+    }
+    
+    .chip { 
+      padding: 6px 12px; 
+      border-radius: 20px; 
+      font-size: 12px; 
+      border: 1px solid #cbd5e1; 
+      cursor: pointer; 
+      white-space: nowrap; 
+      background: white; 
+      transition: 0.2s; 
+    }
+    
+    .chip.active { 
+      background: #e0f2fe; 
+      border-color: #004aad; 
+      color: #004aad; 
+      font-weight: 700; 
+    }
+    
+    .history-list { 
+      flex: 1; 
+      overflow-y: auto; 
+      padding: 0 15px 20px; 
+      scrollbar-width: none; 
+    }
+    
+    .hist-item { 
+      padding: 12px; 
+      border-radius: 12px; 
+      margin-bottom: 8px; 
+      cursor: pointer; 
+      background: white; 
+      transition: 0.2s; 
+      border: 1px solid transparent; 
+    }
+    
+    .hist-item:hover { 
+      border-color: var(--primary); 
+      transform: translateX(5px); 
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05); 
+    }
+    
+    .tag { font-size: 10px; padding: 3px 6px; border-radius: 4px; color: white; font-weight: 800; }
+    .tag.oral { background: var(--tag-oral); } 
+    .tag.quiz { background: var(--tag-written); }
+
+    /* ==========================================
+       4. LAYOUT PRINCIPAL Y VISTAS
+       ========================================== */
+    #main-content { 
+      flex: 1; 
+      display: flex; 
+      flex-direction: column; 
+      height: 100%; 
+      position: relative; 
+      width: 100vw; 
+    }
+    
+    .navbar { 
+      height: 64px; 
+      padding: 0 20px; 
+      display: flex; 
+      align-items: center; 
+      justify-content: space-between; 
+      border-bottom: 1px solid #f1f5f9; 
+      background: rgba(255,255,255,0.8); 
+      backdrop-filter: blur(10px); 
+      z-index: 50; 
+    }
+    
+    .nav-left { display: flex; align-items: center; gap: 15px; }
+    
+    .view-container { 
+      flex: 1; 
+      display: flex; 
+      flex-direction: column; 
+      overflow: hidden; 
+    }
+
+    /* LOGIN */
+    .login-box { 
+      margin: auto; 
+      padding: 40px; 
+      text-align: center; 
+      max-width: 320px; 
+      width: 90%; 
+      background: white; 
+      border-radius: 24px; 
+      box-shadow: 0 10px 40px rgba(0,0,0,0.08); 
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+      transition: transform 0.3s; 
+    }
+    
+    .login-logo { width: 140px; height: auto; object-fit: contain; margin-bottom: 15px; display: none; }
+    #logo-loader { font-size:12px; color:var(--primary); margin-bottom:20px; font-weight: 600; animation: blink 1.5s infinite; }
+    @keyframes blink { 50% { opacity: 0.5; } }
+    
+    .input-login { 
+      width: 100%; 
+      padding: 16px; 
+      margin: 20px 0; 
+      border: 2px solid #e2e8f0; 
+      border-radius: 12px; 
+      font-size: 18px; 
+      text-align: center; 
+      outline: none; 
+      font-weight: 600; 
+      color: var(--primary); 
+      transition: all 0.2s; 
+      -moz-appearance: textfield; 
+    }
+    
+    .input-login:focus { 
+      border-color: var(--primary); 
+      box-shadow: 0 0 0 4px var(--primary-light); 
+    }
+
+    /* DASHBOARD CENTRADO */
+    #view-dashboard { 
+      justify-content: center; 
+      align-items: center; 
+      width: 100%; 
+    }
+    
+    .dashboard-content { 
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+      gap: 40px; 
+      width: 100%; 
+      text-align: center;
+    }
+    
+    .dashboard-grid { 
+      display: flex; 
+      gap: 20px; 
+      justify-content: center; 
+      flex-wrap: wrap; 
+      width: 100%; 
+    }
+
+    /* ==========================================
+       5. CHAT Y BURBUJAS
+       ========================================== */
+    .chat-scroll { 
+      flex: 1; 
+      overflow-y: auto; 
+      padding: 20px; 
+      display: flex; 
+      flex-direction: column; 
+      gap: 20px; 
+      scroll-behavior: smooth; 
+    }
+    
+    .chat-content-width { 
+      width: 100%; 
+      max-width: 700px; 
+      margin: 0 auto; 
+      display: flex; 
+      flex-direction: column; 
+      gap: 20px; 
+      position: relative; 
+    }
+    
+    .bubble { 
+      padding: 14px 20px; 
+      border-radius: 20px; 
+      line-height: 1.6; 
+      max-width: 85%; 
+      font-size: 15px; 
+      box-shadow: 0 2px 5px rgba(0,0,0,0.02); 
+      animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+    }
+    
+    .bubble.user { 
+      background: var(--bubble-user); 
+      align-self: flex-end; 
+      border-bottom-right-radius: 4px; 
+    }
+    
+    .bubble.ai { 
+      background: var(--bubble-ai); 
+      align-self: flex-start; 
+      border: 1px solid #f1f5f9; 
+      border-top-left-radius: 4px; 
+    }
+    
+    .badge-live { 
+      background: #10b981; 
+      color: white; 
+      font-size: 10px; 
+      padding: 2px 6px; 
+      border-radius: 6px; 
+      vertical-align: middle; 
+      margin-left: 8px; 
+      font-weight: 800; 
+      letter-spacing: 0.5px; 
+    }
+    
+    @keyframes popIn { 
+      from { opacity: 0; transform: scale(0.9) translateY(10px); } 
+      to { opacity: 1; transform: scale(1) translateY(0); } 
+    }
+
+    /* ==========================================
+       6. ZONA DE INPUT Y CÁPSULA UNIFICADA (VOZ)
+       ========================================== */
+    .input-wrapper { 
+      padding: 15px 15px 60px 15px; /* Padding bottom gigante para evitar cortes */
+      background: rgba(255,255,255,0.95); 
+      border-top: 1px solid #f1f5f9; 
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+      gap: 12px; 
+      z-index: 60; 
+      overflow: visible;
+    }
+    
+    .suggestion-chips { 
+      display: flex; 
+      gap: 10px; 
+      width: 100%; 
+      max-width: 700px; 
+      padding: 10px 0; 
+      justify-content: space-between; 
+      align-items: center; 
+      overflow-x: visible;
+    }
+    
+    .chips-group { 
+      display: flex; 
+      gap: 10px; 
+      overflow-x: auto; 
+      scrollbar-width: none; 
+      padding-bottom: 5px; 
+      overflow: visible;
+    }
+
+    /* --- LA CÁPSULA MAESTRA --- */
+    .voice-capsule {
+      display: flex;
+      align-items: stretch;
+      border: 2px solid var(--primary);
+      border-radius: 30px; /* Borde general continuo */
+      background: white;
+      overflow: hidden; /* Mantiene la forma perfecta al animar adentro */
+      height: 42px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    
+    /* Botones laterales incrustados en la cápsula */
+    .capsule-btn {
+      background: var(--primary);
+      color: white;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    
+    /* Efecto: El botón crece internamente sin deformar la cápsula */
+    .capsule-btn:hover {
+      padding: 0 24px;
+      background: var(--primary-hover);
+    }
+
+    /* Centro blanco y protegido de la cápsula */
+    .capsule-center {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 15px;
+      color: var(--primary);
+      font-weight: 700;
+      font-size: 13px;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    /* ==========================================
+       7. BARRA DE TEXTO Y MENÚS FLOTANTES
+       ========================================== */
+    .input-bar { 
+      width: 100%; 
+      max-width: 700px; 
+      background: #f1f5f9; 
+      border-radius: 30px; 
+      padding: 6px 8px; 
+      display: flex; 
+      align-items: center; 
+      gap: 6px; 
+      transition: 0.3s; 
+      border: 1px solid transparent; 
+    }
+    
+    .input-bar:focus-within { 
+      background: white; 
+      border-color: var(--primary); 
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08); 
+      transform: translateY(-2px); 
+    }
+    
+    .msg-input { 
+      flex: 1; 
+      background: transparent; 
+      border: none; 
+      outline: none; 
+      padding: 8px 12px; 
+      font-size: 16px; 
+      font-family: 'Outfit'; 
+      min-width: 0; 
+    }
+
+    .attach-container { position: relative; display: flex; align-items: center; justify-content: center; }
+    
+    .attach-btn { 
+      width: 44px; 
+      height: 44px; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      color: #64748b; 
+      border-radius: 50%; 
+      cursor: pointer; 
+      transition: 0.2s; 
+    }
+    
+    .attach-btn:hover { background: #e2e8f0; color: #334155; }
+    
+    .popup-menu { 
+      position: absolute; 
+      bottom: 55px; 
+      left: 0; 
+      background: white; 
+      border-radius: 12px; 
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15); 
+      border: 1px solid #e2e8f0; 
+      overflow: hidden; 
+      display: flex; 
+      flex-direction: column; 
+      min-width: 160px; 
+      transform-origin: bottom left; 
+      transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+      z-index: 200; 
+    }
+    
     .popup-menu.hidden { transform: scale(0.9); opacity: 0; pointer-events: none; }
-    .popup-item { padding: 12px 16px; font-size: 13px; font-weight: 700; color: #1e293b; display: flex; align-items: center; gap: 10px; cursor: pointer; transition: 0.2s; }
+    
+    .popup-item { 
+      padding: 14px 16px; 
+      font-size: 14px; 
+      font-weight: 700; 
+      color: #1e293b; 
+      display: flex; 
+      align-items: center; 
+      gap: 12px; 
+      cursor: pointer; 
+      transition: background 0.2s; 
+    }
+    
     .popup-item:hover { background: #f1f5f9; color: var(--primary); }
 
-    /* INPUT BAR */
-    .input-bar { width: 100%; max-width: 700px; background: #f1f5f9; border-radius: 30px; padding: 6px 8px; display: flex; align-items: center; gap: 6px; }
-    .msg-input { flex: 1; background: transparent; border: none; outline: none; padding: 8px 12px; font-size: 16px; font-family: 'Outfit'; }
-    .btn-send-filled { width: 44px; height: 44px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; }
-    .action-icon-btn { width: 44px; height: 44px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #64748b; flex-shrink: 0; transition: 0.2s; }
+    .action-icon-btn { 
+      width: 44px; 
+      height: 44px; 
+      border-radius: 50%; 
+      cursor: pointer; 
+      transition: transform 0.1s ease-out; /* Optimizado para el audio reactivo */
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      color: #64748b; 
+      flex-shrink: 0; 
+    }
     
-    .mic-recording { color: var(--primary) !important; background: var(--primary-light) !important; animation: pulseTheme 1.5s infinite; }
-    @keyframes pulseTheme { 0% { transform: scale(1); box-shadow: 0 0 0 0 var(--primary-light); } 70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(0,0,0, 0); } 100% { transform: scale(1); box-shadow: 0 0 0 0 var(--primary-light); } }
+    .action-icon-btn:hover { background: #e2e8f0; color: #334155; }
+    
+    .btn-send-filled { 
+      width: 44px; 
+      height: 44px; 
+      background: var(--primary); 
+      color: white; 
+      border-radius: 50%; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      cursor: pointer; 
+      transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+      flex-shrink: 0; 
+    }
+    
+    .btn-send-filled:hover { 
+      transform: scale(1.1) rotate(-10deg); 
+      box-shadow: 0 0 15px rgba(0, 74, 173, 0.4); 
+    }
 
-    .live-recording { color: var(--primary) !important; background: var(--primary-light) !important; animation: pulseLive 1.5s infinite; }
-    @keyframes pulseLive { 0% { transform: scale(1); box-shadow: 0 0 0 0 var(--primary-light); } 70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(0,0,0, 0); } 100% { transform: scale(1); box-shadow: 0 0 0 0 var(--primary-light); } }
+    /* ==========================================
+       8. ANIMACIONES Y ESTADOS ACTIVOS
+       ========================================== */
+    .mic-recording { 
+      color: var(--primary) !important; 
+      background: var(--primary-light) !important; 
+    }
+    
+    .live-active { 
+      color: var(--primary) !important; 
+      background: var(--primary-light) !important; 
+      /* La animación de escala ahora la maneja el AudioContext en JS, por eso quitamos el keyframe bobo */
+    }
   </style>
 </head><body>
 
+  <!-- ==========================================
+       1. SIDEBAR Y OVERLAY (HISTORIAL)
+       ========================================== -->
   <div id="overlay" onclick="toggleSidebar()"></div>
+  
   <div id="sidebar">
     <div class="sidebar-header">
       <span style="font-weight:800; color:#334155; font-size: 20px">Historial</span>
       <span class="icon" onclick="toggleSidebar()" style="cursor:pointer; width:44px; height:44px; display:flex; align-items:center; justify-content:center;">close</span>
     </div>
+    
     <div class="new-chat-btn" onclick="goHome(); toggleSidebar()" style="padding:15px; display:flex; align-items:center; gap:10px; cursor:pointer; color:var(--primary); font-weight:bold;">
       <span class="icon" style="font-size:20px">add</span> Nuevo Chat
     </div>
+    
     <div class="search-box">
       <span class="icon" style="font-size:18px; color:#94a3b8">search</span>
       <input type="text" class="search-input" placeholder="Buscar..." onkeyup="filterHistory(this.value)">
     </div>
+    
     <div class="filters">
       <div class="chip active" onclick="setFilter('all', this)">Todo</div>
       <div class="chip" onclick="setFilter('files', this)">Archivos</div>
       <div class="chip" onclick="setFilter('chats', this)">Chats</div>
     </div>
+    
     <div class="history-list" id="history-container"></div>
   </div>
 
+  <!-- ==========================================
+       2. CONTENIDO PRINCIPAL
+       ========================================== -->
   <div id="main-content">
+    
+    <!-- BARRA SUPERIOR (NAVBAR) -->
     <div class="navbar hidden" id="navbar">
       <div class="nav-left">
         <span class="icon" onclick="toggleSidebar()" style="cursor:pointer; width:44px; height:44px; display:flex; align-items:center; justify-content:center;">menu</span>
@@ -162,7 +672,7 @@
       </div>
     </div>
 
-    <!-- VISTA LOGIN -->
+    <!-- VISTA 1: LOGIN -->
     <div id="view-login" class="view-container">
       <div class="login-box">
         <img id="login-logo-img" class="login-logo" alt="Logo La Amistad">
@@ -174,7 +684,7 @@
       </div>
     </div>
 
-    <!-- VISTA DASHBOARD -->
+    <!-- VISTA 2: DASHBOARD (CENTRADO PERFECTO) -->
     <div id="view-dashboard" class="view-container hidden">
       <div class="dashboard-content">
         <div style="text-align:center;">
@@ -182,6 +692,7 @@
           <h1 style="color:#1e293b; margin-bottom: 10px; margin-top:0;">Hola, <span id="user-name" style="color:var(--primary)">Estudiante</span></h1>
           <p style="color:#64748b">¿Qué desafío enfrentaremos hoy?</p>
         </div>
+        
         <div class="dashboard-grid">
           <div class="mode-card" onclick="startChat('quiz')">
             <span class="icon" style="font-size:48px; color:#004aad; margin-bottom:15px">edit_note</span>
@@ -197,12 +708,15 @@
       </div>
     </div>
 
-    <!-- VISTA CHAT -->
+    <!-- VISTA 3: CHAT Y CONTROLES -->
     <div id="view-chat" class="view-container hidden">
+      
+      <!-- ZONA DE LECTURA (MENSAJES) -->
       <div class="chat-scroll" id="chat-scroll">        
         <div class="chat-content-width" id="chat-box"></div>
       </div>
       
+      <!-- PREVISUALIZACIÓN DE IMAGEN ADJUNTA -->
       <div id="img-preview" class="chat-content-width hidden" style="padding:0 15px; margin-bottom:10px">
         <div style="background:var(--primary-light); padding:8px 15px; border-radius:12px; display:inline-flex; align-items:center; gap:8px; font-size:12px; color:var(--primary); font-weight:600">
           <span class="icon" style="font-size:16px">image</span> Imagen adjunta
@@ -210,7 +724,9 @@
         </div>
       </div>
       
+      <!-- ZONA DE ESCRITURA Y CONTROLES -->
       <div class="input-wrapper">
+        
         <div class="suggestion-chips">
           <div class="chips-group">
             <div class="action-chip" onclick="sendChip('💡 Dame una pista')">💡 Pista</div>
@@ -218,39 +734,40 @@
             <div class="action-chip" onclick="sendChip('🎯 Resumen')">🎯 Resumen</div>
           </div>
           
-          <!-- ESTRUCTURA DE LA NUEVA CÁPSULA MAESTRA DE VOZ -->
+          <!-- LA CÁPSULA MAESTRA (DISEÑO UNIFICADO) -->
           <div class="attach-container hidden" id="voice-config" style="position: relative;">
-            <div class="capsule-wrapper">
-                <!-- Extremo Izquierdo: Elegir -->
+            
+            <div class="voice-capsule">
                 <div class="capsule-btn" onclick="toggleVoiceMenu()">Elegir</div>
                 
-                <!-- Centro Intocable -->
                 <div class="capsule-center">
                    <span class="icon" style="font-size: 18px;">record_voice_over</span>
                    <span id="current-voice-label">Voz Femenina 1</span>
                 </div>
                 
-                <!-- Extremo Derecho: Probar -->
                 <div class="capsule-btn" onclick="previewVoiceBtn(event)">Probar</div>
             </div>
             
-            <!-- Menú Desplegable -->
-            <div id="voice-menu" class="popup-menu hidden" style="right: 0; left: auto; top: -180px; bottom: auto;">
+            <!-- MENÚ DESPLEGABLE DE VOCES -->
+            <div id="voice-menu" class="popup-menu hidden" style="right: 0; left: auto; bottom: 50px;">
                <div class="popup-item" onclick="selectVoice('Aoede', 'Voz Femenina 1')">👩 Voz Femenina 1</div>
                <div class="popup-item" onclick="selectVoice('Kore', 'Voz Femenina 2')">👩 Voz Femenina 2</div>
                <div style="height:1px; background:#e2e8f0; margin: 4px 0;"></div>
                <div class="popup-item" onclick="selectVoice('Puck', 'Voz Masculina 1')">👨 Voz Masculina 1</div>
                <div class="popup-item" onclick="selectVoice('Charon', 'Voz Masculina 2')">👨 Voz Masculina 2</div>
             </div>
+
           </div>
         </div>
         
+        <!-- BARRA DE INPUT INFERIOR -->
         <div class="input-bar">
+          
           <div class="attach-container">
             <div class="attach-btn" onclick="toggleAttachMenu()">
                <span class="icon">add</span>
             </div>
-            <div id="attach-menu" class="popup-menu hidden">
+            <div id="attach-menu" class="popup-menu hidden" style="bottom: 55px; left: 0;">
                <div class="popup-item" onclick="openCam()"><span class="icon">photo_camera</span> Cámara</div>
                <div class="popup-item" onclick="openGal()"><span class="icon">collections</span> Galería</div>
                <div class="popup-item" onclick="openDoc()"><span class="icon">description</span> Archivos</div>
@@ -273,36 +790,44 @@
           <div class="btn-send-filled" onclick="send()">
             <span class="icon" style="font-size:20px">send</span>
           </div>
+          
         </div>
       </div>
     </div>
   </div><script>
     // ==========================================
-    // VARIABLES GLOBALES Y CONEXIÓN
+    // VARIABLES GLOBALES
     // ==========================================
     var uid = null;
     var mode = null;
     var chatId = null;
     var currentImg = null;
     var currentMime = null;
-    
-    // Aquí pondremos tu link de Google Apps Script más adelante
-    var APPS_SCRIPT_URL = ""; 
+    var historyData = [];
+    var filterType = 'all';
 
+    // ==========================================
+    // INICIALIZACIÓN
+    // ==========================================
     window.onload = function() {
-      // Intenta cargar el logo si está en Google, si no, usa texto
+      // Intento de cargar logo desde Apps Script (con protección GitHub)
       if (typeof google !== 'undefined' && google.script) {
         google.script.run.withSuccessHandler(function(base64) {
+          var logo = document.getElementById('login-logo-img');
+          var loader = document.getElementById('logo-loader');
           if(base64) {
-            document.getElementById('login-logo-img').src = base64;
-            document.getElementById('login-logo-img').style.display = 'block';
-            document.getElementById('logo-loader').style.display = 'none';
+            logo.src = base64;
+            logo.style.display = 'block';
+            loader.style.display = 'none';
+          } else {
+            loader.innerText = 'ALIADO';
           }
         }).getLogoFromDrive();
       } else {
-        document.getElementById('logo-loader').innerText = 'ALIADO (Modo GitHub)';
+        document.getElementById('logo-loader').innerText = 'ALIADO (Modo UI)';
       }
 
+      // Cargar preferencias de voz
       var savedVoiceName = localStorage.getItem('aliado_voice_name');
       var savedVoiceId = localStorage.getItem('aliado_voice');
       if(savedVoiceName && savedVoiceId) {
@@ -310,21 +835,20 @@
         currentVoiceId = savedVoiceId;
       }
       
-      // Cierra los menús si haces clic afuera
+      // Cerrar menús al hacer clic afuera
       document.addEventListener('click', function(e) {
-        var attachContainer = document.getElementById('attach-menu').parentElement;
-        if (attachContainer && !attachContainer.contains(e.target)) {
-            document.getElementById('attach-menu').classList.add('hidden');
-        }
+        var attachContainer = document.querySelector('.attach-container');
+        var attachMenu = document.getElementById('attach-menu');
+        if (attachContainer && !attachContainer.contains(e.target)) attachMenu.classList.add('hidden');
+        
         var voiceContainer = document.getElementById('voice-config');
-        if (voiceContainer && !voiceContainer.contains(e.target)) {
-            document.getElementById('voice-menu').classList.add('hidden');
-        }
+        var voiceMenu = document.getElementById('voice-menu');
+        if (voiceContainer && !voiceContainer.contains(e.target)) voiceMenu.classList.add('hidden');
       });
     };
 
     // ==========================================
-    // LÓGICA DE LA CÁPSULA UNIFICADA (VOZ)
+    // MENÚ DE VOZ (CÁPSULA)
     // ==========================================
     var currentVoiceId = "Aoede";
     
@@ -337,13 +861,12 @@
       document.getElementById('current-voice-label').innerText = name;
       localStorage.setItem('aliado_voice', id);
       localStorage.setItem('aliado_voice_name', name);
-      toggleVoiceMenu(); // Se cierra en silencio, sin reproducir audio
+      toggleVoiceMenu(); 
     }
 
     function previewVoiceBtn(event) {
-      event.stopPropagation(); // Evita que se abra el menú sin querer
+      event.stopPropagation(); 
       var voiceName = document.getElementById('current-voice-label').innerText;
-      
       if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel(); 
         var msg = new SpeechSynthesisUtterance("Hola, esta es mi voz. Pruébame si quieres.");
@@ -355,54 +878,66 @@
     }
 
     // ==========================================
-    // ADJUNTOS
+    // ECUALIZADOR (AUDIO REACTIVO)
     // ==========================================
-    function toggleAttachMenu() { document.getElementById('attach-menu').classList.toggle('hidden'); }
-    function openCam() { document.getElementById('file-cam').click(); toggleAttachMenu(); }
-    function openGal() { document.getElementById('file-gal').click(); toggleAttachMenu(); }
-    function openDoc() { document.getElementById('file-doc').click(); toggleAttachMenu(); }
+    let visStream = null;
+    let visAnimFrame = null;
+    let visAudioCtx = null;
 
-    function handleImage(inputElement) {
-      var f = inputElement.files[0];
-      if(!f) return;
-      var r = new FileReader();
-      r.onload = function(e) { 
-        currentImg = e.target.result.split(',')[1]; 
-        currentMime = f.type; 
-        document.getElementById('img-preview').classList.remove('hidden'); 
-      };
-      r.readAsDataURL(f);
-      inputElement.value = ''; 
+    async function startAudioVisualizer(btnElement) {
+        if (!visAudioCtx) visAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        try {
+            visStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+            const source = visAudioCtx.createMediaStreamSource(visStream);
+            const analyser = visAudioCtx.createAnalyser();
+            analyser.fftSize = 256;
+            source.connect(analyser);
+            const dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+            function draw() {
+                analyser.getByteFrequencyData(dataArray);
+                let sum = 0;
+                for(let i=0; i<dataArray.length; i++) sum += dataArray[i];
+                let avg = sum / dataArray.length;
+                
+                // Animación matemática de escala basada en los decibeles
+                let scale = 1 + (avg / 150);
+                if(scale > 1.35) scale = 1.35; 
+                
+                btnElement.style.transform = `scale(${scale})`;
+                visAnimFrame = requestAnimationFrame(draw);
+            }
+            draw();
+        } catch(e) { console.log("Permiso de visualizador denegado."); }
     }
-    function clearImage() { 
-      currentImg = null; currentMime = null;
-      document.getElementById('img-preview').classList.add('hidden'); 
+
+    function stopAudioVisualizer(btnElement) {
+        if(visAnimFrame) cancelAnimationFrame(visAnimFrame);
+        if(visStream) visStream.getTracks().forEach(t => t.stop());
+        btnElement.style.transform = 'scale(1)';
     }
 
     // ==========================================
-    // MICRÓFONO INFINITO (TRANSCRIPCIÓN REAL-TIME)
+    // MICRÓFONO Y TRANSCRIPCIÓN SIMULTÁNEA
     // ==========================================
     var sttRecognition = null;
     var isDictating = false;
     var manualStop = false;
     var finalTranscriptMemory = "";
 
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-      var SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
-      sttRecognition = new SpeechRec();
+    if ('webkitSpeechRecognition' in window) {
+      sttRecognition = new webkitSpeechRecognition();
       sttRecognition.continuous = true; 
-      sttRecognition.interimResults = true; // Permite escribir mientras hablas
+      sttRecognition.interimResults = true; 
       sttRecognition.lang = 'es-UY';
 
       sttRecognition.onresult = function(e) {
         var interimTranscript = '';
         var currentFinal = '';
-        
         for (var i = e.resultIndex; i < e.results.length; ++i) {
           if (e.results[i].isFinal) currentFinal += e.results[i][0].transcript;
           else interimTranscript += e.results[i][0].transcript;
         }
-        
         finalTranscriptMemory += currentFinal;
         document.getElementById('msg-input').value = finalTranscriptMemory + interimTranscript;
       };
@@ -414,40 +949,40 @@
       sttRecognition.onerror = function(event) {
         isDictating = false;
         manualStop = true;
-        document.getElementById('btn-dictate').classList.remove('mic-recording');
+        var btn = document.getElementById('btn-dictate');
+        btn.classList.remove('mic-recording');
+        stopAudioVisualizer(btn);
         document.getElementById('msg-input').placeholder = "Escribe tu duda...";
-        console.error("Error de micrófono: ", event.error);
       };
     }
 
     function toggleDictation() {
-      if(!sttRecognition) return alert("Tu navegador actual no soporta esta función.");
+      if(!sttRecognition) return alert("Navegador no compatible con dictado.");
       var btn = document.getElementById('btn-dictate');
       var input = document.getElementById('msg-input');
 
       if(!isDictating) {
         isDictating = true;
         manualStop = false;
-        finalTranscriptMemory = ""; 
+        finalTranscriptMemory = "";
         btn.classList.add('mic-recording');
-        input.placeholder = "Hablando... (Toca para enviar)";
-        input.value = ""; 
+        input.placeholder = "Hablando...";
+        input.value = "";
         sttRecognition.start();
+        startAudioVisualizer(btn);
       } else {
         isDictating = false;
-        manualStop = true; 
+        manualStop = true;
         btn.classList.remove('mic-recording');
         input.placeholder = "Escribe tu duda...";
         sttRecognition.stop();
-        
-        setTimeout(function() {
-           if (input.value.trim() !== "") send();
-        }, 500);
+        stopAudioVisualizer(btn);
+        setTimeout(function() { if (input.value.trim() !== "") send(); }, 600);
       }
     }
 
     // ==========================================
-    // MODO LIVE (CONEXIÓN API + TRANSCRIPCIÓN)
+    // MODO LIVE (API GEMINI)
     // ==========================================
     var LIVE_API_KEY = "AIzaSyB5aayRLLxCkuppJS95geSNeO5iVCa82Zk"; 
     var liveWs = null;
@@ -498,9 +1033,10 @@
         input.value = "";
         input.placeholder = "Modo Live. Habla ahora...";
         
-        if (sttRecognition) sttRecognition.start(); // Inicia transcripción en la caja
-        if(!liveWs || liveWs.readyState !== WebSocket.OPEN) await initLiveAPI();
+        if (sttRecognition) sttRecognition.start(); 
+        startAudioVisualizer(btn);
 
+        if(!liveWs || liveWs.readyState !== WebSocket.OPEN) await initLiveAPI();
         audioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
         micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
         var source = audioCtx.createMediaStreamSource(micStream);
@@ -513,7 +1049,6 @@
           var bytes = new Uint8Array(pcm16.buffer);
           var binary = '';
           for (var j = 0; j < bytes.byteLength; j++) binary += String.fromCharCode(bytes[j]);
-          
           if (liveWs.readyState === WebSocket.OPEN) {
             liveWs.send(JSON.stringify({ realtimeInput: { mediaChunks: [{ mimeType: "audio/pcm;rate=16000", data: btoa(binary) }] } }));
           }
@@ -527,6 +1062,7 @@
         input.placeholder = "Escribe tu duda...";
         
         if (sttRecognition) sttRecognition.stop();
+        stopAudioVisualizer(btn);
         if (micStream) micStream.getTracks().forEach(function(t) { t.stop(); });
         if (scriptNode) scriptNode.disconnect();
         
@@ -537,7 +1073,7 @@
             if (liveWs && liveWs.readyState === WebSocket.OPEN) {
               liveWs.send(JSON.stringify({ clientContent: { turnComplete: true } }));
             }
-        }, 500);
+        }, 600);
       }
     }
 
@@ -546,12 +1082,10 @@
       var binaryStr = atob(base64Data);
       var bytes = new Uint8Array(binaryStr.length);
       for (var i = 0; i < binaryStr.length; i++) bytes[i] = binaryStr.charCodeAt(i);
-      
       var audioBuffer = audioCtx.createBuffer(1, bytes.length / 2, 24000);
       var channelData = audioBuffer.getChannelData(0);
       var dataView = new DataView(bytes.buffer);
       for (var j = 0; j < channelData.length; j++) channelData[j] = dataView.getInt16(j * 2, true) / 32768.0;
-
       var source = audioCtx.createBufferSource();
       source.buffer = audioBuffer;
       source.connect(audioCtx.destination);
@@ -559,48 +1093,78 @@
     }
 
     // ==========================================
-    // RUTINAS DE UI (MENÚS Y LOGIN)
+    // ADJUNTOS
+    // ==========================================
+    function toggleAttachMenu() { document.getElementById('attach-menu').classList.toggle('hidden'); }
+    function openCam() { document.getElementById('file-cam').click(); toggleAttachMenu(); }
+    function openGal() { document.getElementById('file-gal').click(); toggleAttachMenu(); }
+    function openDoc() { document.getElementById('file-doc').click(); toggleAttachMenu(); }
+
+    function handleImage(inputElement) {
+      var f = inputElement.files[0];
+      if(!f) return;
+      var r = new FileReader();
+      r.onload = function(e) { 
+        currentImg = e.target.result.split(',')[1]; 
+        currentMime = f.type; 
+        document.getElementById('img-preview').classList.remove('hidden'); 
+      };
+      r.readAsDataURL(f);
+      inputElement.value = ''; 
+    }
+    function clearImage() { 
+      currentImg = null; currentMime = null;
+      document.getElementById('img-preview').classList.add('hidden'); 
+    }
+
+    // ==========================================
+    // NAVEGACIÓN Y LOGIN
     // ==========================================
     function show(id) {
       var views = document.querySelectorAll('.view-container');
-      for (var i = 0; i < views.length; i++) views[i].classList.add('hidden');
+      for (var i = 0; i < views.length; i++) { views[i].classList.add('hidden'); }
       document.getElementById(id).classList.remove('hidden');
       if(id !== 'view-login') document.getElementById('navbar').classList.remove('hidden');
     }
 
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('open');
+      document.getElementById('overlay').classList.toggle('show');
+      if(document.getElementById('sidebar').classList.contains('open')) loadHistory();
+    }
+
     function login() {
       var inputElement = document.getElementById('cedula');
-      if (!inputElement || inputElement.value.trim() === "") return alert("Ingresa tu cédula.");
-      
+      if (!inputElement) return;
+      var val = inputElement.value.trim();
+      if (val === "") { alert("Ingresa tu cédula."); return; }
       var btn = document.querySelector('.login-box .btn-primary');
       if (btn) btn.innerText = "VERIFICANDO...";
       
-      // MODO PRUEBA GITHUB
+      // Protector para pruebas locales/GitHub
       if (typeof google === 'undefined' || !google.script) {
-        setTimeout(function() {
-           uid = "github-test";
-           document.getElementById('user-name').innerText = "Máximo";
-           show('view-dashboard');
-           if (btn) btn.innerText = "COMENZAR";
-        }, 800);
-        return;
+          setTimeout(function() {
+             uid = val;
+             document.getElementById('user-name').innerText = "Estudiante";
+             show('view-dashboard');
+             if (btn) btn.innerText = "COMENZAR";
+          }, 800);
+          return;
       }
 
-      // MODO APPS SCRIPT (Opcional si lo usas ahí)
       google.script.run.withSuccessHandler(function(res) {
           if (btn) btn.innerText = "COMENZAR";
           if (res.success === true) {
             uid = res.id;
             document.getElementById('user-name').innerText = res.nombre.split(' ')[0];
             show('view-dashboard');
-          } else alert(res.error);
-      }).validarIngreso(inputElement.value.trim());
+          } else { alert(res.error); }
+      }).validarIngreso(val);
     }
 
     function goHome() {
       show('view-dashboard');
       document.body.className = ''; 
-      document.getElementById('app-title').innerText = "ALIADO";
       document.getElementById('chat-box').innerHTML = '';
       document.getElementById('voice-config').classList.add('hidden');
       document.getElementById('btn-live').classList.add('hidden');
@@ -608,25 +1172,17 @@
     }
     
     function startChat(m) {
-      mode = m;
-      chatId = Date.now().toString(); 
-      show('view-chat');
-      
+      mode = m; chatId = Date.now().toString(); show('view-chat');
       var liveBtn = document.getElementById('btn-live');
       var voiceSelector = document.getElementById('voice-config');
-      
       if (mode === 'oral') {
         document.body.className = 'theme-oral';
         document.getElementById('app-title').innerText = "MODO ORAL";
-        voiceSelector.classList.remove('hidden');
-        liveBtn.classList.remove('hidden');
-        addMsg("<b>Modo Oral.</b><br>Habla para transcribir o usa las ondas para Modo Live.", 'ai');
+        voiceSelector.classList.remove('hidden'); liveBtn.classList.remove('hidden');
       } else {
         document.body.className = '';
         document.getElementById('app-title').innerText = "MODO ESCRITO";
-        voiceSelector.classList.add('hidden');
-        liveBtn.classList.add('hidden');
-        addMsg("<b>Modo Escrito.</b><br>¿Qué estudiaremos hoy?", 'ai');
+        voiceSelector.classList.add('hidden'); liveBtn.classList.add('hidden');
       }
     }
 
@@ -635,29 +1191,36 @@
     function send() {
       var txt = document.getElementById('msg-input').value.trim();
       if(!txt && !currentImg) return;
+      
+      var chatHistoryMatch = null;
+      for (var j = 0; j < historyData.length; j++) {
+         if (historyData[j].id === chatId) { chatHistoryMatch = historyData[j]; break; }
+      }
+      var hist = chatHistoryMatch ? JSON.stringify(chatHistoryMatch.msgs || []) : "[]";
 
-      addMsg(txt + (currentImg ? " <br><small><i>[Imagen adjunta]</i></small>" : ""), 'user');
+      addMsg(txt + (currentImg ? " <br><i>[Imagen]</i>" : ""), 'user');
       document.getElementById('msg-input').value = '';
       var loadId = addMsg("Analizando...", 'ai', true);
+      
+      var tmpImg = currentImg; 
+      var tmpMime = currentMime;
+      clearImage();
 
-      // MODO PRUEBA GITHUB
+      // Protector para pruebas locales/GitHub
       if (typeof google === 'undefined' || !google.script) {
-         setTimeout(function() {
-            var loaderEl = document.getElementById(loadId);
-            if (loaderEl) loaderEl.remove();
-            addMsg("¡Mensaje recibido! (Esta es una prueba de UI en GitHub. Para respuestas reales de Gemini, debemos conectar tu Apps Script).", 'ai');
-         }, 1500);
-         clearImage();
-         return;
+          setTimeout(function() {
+             var loaderEl = document.getElementById(loadId);
+             if (loaderEl) loaderEl.remove();
+             addMsg("¡Interfaz enviando! (Conecta el Apps Script para respuestas reales).", 'ai');
+          }, 1500);
+          return;
       }
 
-      // MODO APPS SCRIPT
       google.script.run.withSuccessHandler(function(res) {
         var loaderEl = document.getElementById(loadId);
         if (loaderEl) loaderEl.remove();
         addMsg(res.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>'), 'ai');
-      }).talkToGemini(txt, mode, currentImg, currentMime, uid, chatId, "[]");
-      clearImage();
+      }).talkToGemini(txt, mode, tmpImg, tmpMime, uid, chatId, hist);
     }
     
     function addMsg(html, role, isLoader, isLive) {
@@ -672,13 +1235,97 @@
     }
 
     // ==========================================
-    // SIDEBAR / HISTORIAL BÁSICO
+    // HISTORIAL COMPLETO Y FILTROS
     // ==========================================
-    function toggleSidebar() {
-      document.getElementById('sidebar').classList.toggle('open');
-      document.getElementById('overlay').classList.toggle('show');
+    function loadHistory() { 
+      if (typeof google === 'undefined' || !google.script) return;
+      google.script.run.withSuccessHandler(function(list) { 
+        historyData = list; renderHistory(); 
+      }).getHistoryList(uid); 
+    }
+
+    function setFilter(type, el) { 
+      filterType = type; 
+      var chips = document.querySelectorAll('.chip');
+      for (var k = 0; k < chips.length; k++) { chips[k].classList.remove('active'); }
+      el.classList.add('active'); renderHistory(); 
+    }
+
+    function filterHistory(q) { renderHistory(q.toLowerCase()); }
+
+    function renderHistory(s) {
+      if (!s) s = "";
+      var container = document.getElementById('history-container');
+      container.innerHTML = "";
+      
+      var filtered = [];
+      for (var i = 0; i < historyData.length; i++) {
+         var item = historyData[i];
+         var matchS = item.title.toLowerCase().includes(s);
+         var matchT = true;
+         if(filterType === 'files') matchT = item.hasFiles;
+         if(filterType === 'chats') matchT = !item.hasFiles;
+         if (matchS && matchT) filtered.push(item);
+      }
+      
+      if(filtered.length === 0) { 
+        container.innerHTML = "<div style='text-align:center; padding:20px; color:#94a3b8; font-size:12px'>Vacío</div>"; 
+        return; 
+      }
+      
+      filtered.forEach(function(i) {
+        var div = document.createElement('div'); div.className = 'hist-item';
+        var tagClass = i.mode === 'oral' ? 'oral' : 'quiz';
+        var tagName = i.mode === 'oral' ? 'ORAL' : 'ESCRITO';
+        
+        div.onclick = function() { loadChatFromHistory(i.id); };
+        var fileIcon = i.hasFiles ? '<span class="icon" style="font-size:14px;">attachment</span>' : '';
+        div.innerHTML = '<div style="display:flex; justify-content:space-between; align-items:center;">' +
+            '<span style="font-size:13px; font-weight:600; color:#334155; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:160px;">' + i.title + '</span>' +
+            '<span class="tag ' + tagClass + '">' + tagName + '</span>' +
+          '</div>' +
+          '<div style="font-size:11px; color:#94a3b8; margin-top:4px; display:flex; justify-content:space-between;">' +
+            '<span>' + new Date(i.ts).toLocaleDateString() + '</span>' + fileIcon +
+          '</div>';
+        container.appendChild(div);
+      });
+    }
+
+    function loadChatFromHistory(selectedChatId) {
+      var chatData = null;
+      for (var i = 0; i < historyData.length; i++) {
+          if (historyData[i].id === selectedChatId) { chatData = historyData[i]; break; }
+      }
+      if(!chatData) return;
+      chatId = selectedChatId; mode = chatData.mode;
+      document.getElementById('chat-box').innerHTML = ''; show('view-chat');
+      
+      var liveBtn = document.getElementById('btn-live');
+      var voiceSelector = document.getElementById('voice-config');
+      
+      if (mode === 'oral') {
+        document.body.className = 'theme-oral';
+        document.getElementById('app-title').innerText = "MODO ORAL";
+        voiceSelector.classList.remove('hidden'); liveBtn.classList.remove('hidden');
+      } else {
+        document.body.className = '';
+        document.getElementById('app-title').innerText = "MODO ESCRITO";
+        voiceSelector.classList.add('hidden'); liveBtn.classList.add('hidden');
+      }
+      
+      if(chatData.msgs && chatData.msgs.length > 0) {
+        chatData.msgs.forEach(function(msg) {
+          var formattedText = msg.text.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/\n/g, '<br>');
+          addMsg(formattedText, msg.sender);
+        });
+      }
+      document.getElementById('sidebar').classList.remove('open');
+      document.getElementById('overlay').classList.remove('show');
     }
     
+    // ==========================================
+    // EVENTOS DE TECLADO
+    // ==========================================
     document.getElementById('msg-input').addEventListener('keypress', function(e) { if(e.key==='Enter') send(); });
     document.getElementById('cedula').addEventListener('keypress', function(e) { if(e.key==='Enter') login(); });
   </script>
